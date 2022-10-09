@@ -6,6 +6,7 @@ import logging
 import json
 import functools
 from collections import OrderedDict, Counter, deque
+import pdb # XXX
 from typing import List, Dict, Optional, Set, Iterable, Union, Any, Tuple, TypedDict, Callable, NamedTuple
 import typing  # this can go away when Python 3.8 support is dropped
 import secrets
@@ -15,6 +16,7 @@ import Options
 import Utils
 import NetUtils
 
+import RoR2Environments # XXX
 
 class Group(TypedDict, total=False):
     name: str
@@ -361,6 +363,13 @@ class MultiWorld():
                 subworld.collect(ret, item)
         ret.sweep_for_events()
 
+        # XXX
+        # print("stuff collected")
+        # for c,v in enumerate(ret.prog_items):
+        #     if (c in RoR2Environments.environment_ALL_table.keys()):
+        #         print(c,v)
+        # print("eom")
+
         if use_cache:
             self._all_state = ret
         return ret
@@ -384,6 +393,7 @@ class MultiWorld():
         return self.worlds[player].create_item(item_name)
 
     def push_precollected(self, item: Item):
+        print(f"precollected {item}") # XXX
         self.precollected_items[item.player].append(item)
         self.state.collect(item, True)
 
@@ -687,6 +697,7 @@ class CollectionState():
                 self.collect(event.item, True, event)
 
     def has(self, item: str, player: int, count: int = 1) -> bool:
+        # print(f"player {player} has {self.prog_items[item, player]} of {item}") # XXX
         return self.prog_items[item, player] >= count
 
     def has_all(self, items: Set[str], player: int) -> bool:
@@ -876,6 +887,7 @@ class CollectionState():
         return self.is_not_bunny(region, player) and self.has('Pegasus Boots', player)
 
     def collect(self, item: Item, event: bool = False, location: Optional[Location] = None) -> bool:
+        # print("collecting ", item) # XXX
         if location:
             self.locations_checked.add(location)
 
@@ -943,8 +955,12 @@ class Region:
         self.player = player
 
     def can_reach(self, state: CollectionState) -> bool:
+        # print("checking reachability of ",self.name) # XXX
+        # print(state.reachable_regions[self.player]) # XXX
         if state.stale[self.player]:
             state.update_reachable_regions(self.player)
+            # print("after update ") # XXX
+            # print(state.reachable_regions[self.player]) # XXX
         return self in state.reachable_regions[self.player]
 
     def can_reach_private(self, state: CollectionState) -> bool:
@@ -979,11 +995,25 @@ class Entrance:
         self.player = player
 
     def can_reach(self, state: CollectionState) -> bool:
+        # print("checking reachability of ",self.name) # XXX
+        # a = self.parent_region.can_reach(state)
+        # print("self.parent_region.can_reach(state) is", a)
+        # if a:
+        #     a = self.access_rule(state)
+        #     print("self.access_rule(state) is", a)
+        b = self.parent_region.can_reach(state)
+        c = self.access_rule(state)
+        # print("self.parent_region.can_reach(state), ", b)
+        # # # pdb.set_trace()
+        # print("self.access_rule(state)", c, self.access_rule)
+        # if a: # XXX
         if self.parent_region.can_reach(state) and self.access_rule(state):
             if not self.hide_path and not self in state.path:
                 state.path[self] = (self.name, state.path.get(self.parent_region, (self.parent_region.name, None)))
+            # print("reachable", self.name) # XXX
             return True
 
+        # print("unreachable", self.name, f"because {b} and {c}") # XXX
         return False
 
     def connect(self, region: Region, addresses=None, target=None):

@@ -1,6 +1,7 @@
 from BaseClasses import MultiWorld
 from worlds.generic.Rules import set_rule, add_rule
 from .Locations import orderedstage_location
+from .RoR2Environments import *
 
 
 def set_rules(world: MultiWorld, player: int) -> None:
@@ -49,7 +50,27 @@ def set_rules(world: MultiWorld, player: int) -> None:
             add_rule(world.get_location("Victory", player),
                     lambda state: state.has("Dio's Best Friend", player,
                                             total_revivals + world.start_with_revive[player]))
-    # explore mode requires no specific rules yet
-    # TODO have locations in enviroments require the item for said environment
+
+    # explore mode with unlockable environments requires logic
+    elif (world.environments_as_items[player].value):
+        pass
+
+        # XXX
+        # environment_available_orderedstages_table = environment_vanilla_orderedstages_table
+        # if (world.dlc_sotv[player].value):
+        #     environment_available_orderedstages_table = collapse_dict_list_vertical(environment_available_orderedstages_table, environment_sotv_orderedstages_table)
+        # for i in range(5):
+        #     stage_number = i+1
+        #     event_loc = world.get_location(f"OrderedStage_{stage_number}", player)
+        #     # set_rule(event_loc, lambda state: True) # assume we can get to the location, we do this so we can add rules freely # XXX
+
+        #     # create_events does not set the access rules, so we will construct those here
+        #     # access to the stage is granted when any environments in that stage are unlocked
+        #     for region_name,_ in environment_available_orderedstages_table[i]:
+        #         add_rule(event_loc, lambda state: state.can_reach(region_name, "Region", player))
+
+        #     if (stage_number > 1):
+        #         # all environments that are past stage1 require the previous stage in order to be entered
+        #         pass
 
     world.completion_condition[player] = lambda state: state.has("Victory", player)

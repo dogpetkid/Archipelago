@@ -11,12 +11,16 @@ class TestBase(unittest.TestCase):
 
     def testAllStateCanReachEverything(self):
         for game_name, world_type in AutoWorldRegister.world_types.items():
+            if game_name != "Risk of Rain 2": continue # XXX
             # Final Fantasy logic is controlled by finalfantasyrandomizer.com
             if game_name != "Ori and the Blind Forest" and game_name != "Final Fantasy":  # TODO: fix Ori Logic
                 with self.subTest("Game", game=game_name):
+                    print("starting everything") # XXX
                     world = setup_default_world(world_type)
                     excluded = world.exclude_locations[1].value
                     state = world.get_all_state(False)
+                    print("state.prog_items at end") # XXX
+                    print(state.prog_items) # XXX
                     for location in world.get_locations():
                         if location.name not in excluded:
                             with self.subTest("Location should be reached", location=location):
@@ -27,11 +31,16 @@ class TestBase(unittest.TestCase):
 
     def testEmptyStateCanReachSomething(self):
         for game_name, world_type in AutoWorldRegister.world_types.items():
+            if game_name != "Risk of Rain 2": continue # XXX
             # Final Fantasy logic is controlled by finalfantasyrandomizer.com
             if game_name != "Archipelago" and game_name != "Final Fantasy":
                 with self.subTest("Game", game=game_name):
+                    print("starting something") # XXX
                     world = setup_default_world(world_type)
                     state = CollectionState(world)
+                    print("state.prog_items from start") # XXX
+                    print(state.prog_items) # XXX
+                    print(state.has("Titanic Plains", 1)) # XXX
                     locations = set()
                     for location in world.get_locations():
                         if location.can_reach(state):
